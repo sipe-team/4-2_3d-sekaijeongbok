@@ -1,0 +1,215 @@
+name: Sync to Target Repository
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout source repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Sync to target repository
+      uses: actions/github-script@v7
+      with:
+        github-token: ${{ secrets.SIPE_SYNC_TOKEN }}
+        script: |
+          const fs = require('fs');
+          const path = require('path');
+          
+          // Target repository configuration
+          const targetOwner = 'sipe-team';
+          const targetRepo = '4-2_3d-sekaijeongbok';
+          const targetPath = 'euihyun'; // Target subfolder
+          const sourceBranch = context.ref.replace('refs/heads/', '');
+          const syncBranch = `feat/euihyun-${context.sha.substring(0, 7)}`;
+          
+          console.log(`Syncing from ${context.repo.owner}/${context.repo.repo} to ${targetOwner}/${targetRepo}/${targetPath}`);
+          
+          try {
+            // Get the default branch of target repo
+            const { data: targetRepoData } = await github.rest.repos.get({
+              owner: targetOwner,
+              repo: targetRepo
+            });
+            const defaultBranch = targetRepoData.default_branch;
+            
+            // Get the latest commit from target repo's default branch
+            const { data: targetRef } = await github.rest.git.getRef({
+              owner: targetOwner,
+              repo: targetRepo,
+              ref: `heads/${defaultBranch}`
+            });
+            
+            // Create new branch in target repo
+            await github.rest.git.createRef({
+              owner: targetOwner,
+              repo: targetRepo,
+              ref: `refs/heads/${syncBranch}`,
+              sha: targetRef.object.sha
+            });
+            
+            console.log(`Created branch ${syncBranch} in target repo`);
+            
+            // Function to get all files recursively
+            function getAllFiles(dir, fileList = []) {
+              const files = fs.readdirSync(dir);
+              files.forEach(file => {
+                const filePath = path.join(dir, file);
+                if (fs.statSync(filePath).isDirectory()) {
+                  // Skip certain directories
+                  if (!file.startsWith('.') || file === '.github') {
+                    getAllFiles(filePath, fileList);
+                  }
+                } else {
+                  fileList.push(filePath);
+                }
+              });
+              return fileList;
+            }
+            
+            // Get all files from source
+            const allFiles = getAllFiles('.');
+            const filesToSync = allFiles.filter(file => 
+              !file.includes('node_modules/') && 
+              !file.includes('.git/') &&
+              !file.includes('dist/')
+            );
+            
+            console.log(`Found ${filesToSync.length} files to sync`);
+            
+            // First, get list of existing files in target euihyun directory to clean up
+            let existingFiles = [];
+            try {
+              const { data: targetContents } = await github.rest.repos.getContent({
+                owner: targetOwner,
+                repo: targetRepo,
+                path: targetPath,
+                ref: syncBranch
+              });
+              
+              if (Array.isArray(targetContents)) {
+                // Recursively get all files in euihyun directory
+                async function getFilesRecursively(contents, basePath = '') {
+                  let files = [];
+                  for (const item of contents) {
+                    const itemPath = basePath ? `${basePath}/${item.name}` : item.name;
+                    if (item.type === 'file') {
+                      files.push({
+                        path: `${targetPath}/${itemPath}`,
+                        sha: item.sha
+                      });
+                    } else if (item.type === 'dir') {
+                      const { data: subContents } = await github.rest.repos.getContent({
+                        owner: targetOwner,
+                        repo: targetRepo,
+                        path: `${targetPath}/${itemPath}`,
+                        ref: syncBranch
+                      });
+                      const subFiles = await getFilesRecursively(subContents, itemPath);
+                      files = files.concat(subFiles);
+                    }
+                  }
+                  return files;
+                }
+                
+                existingFiles = await getFilesRecursively(targetContents);
+                console.log(`Found ${existingFiles.length} existing files in target directory`);
+              }
+            } catch (error) {
+              console.log(`Target directory ${targetPath} doesn't exist yet or is empty`);
+            }
+            
+            // Delete existing files that won't be replaced
+            const filesToDelete = existingFiles.filter(existingFile => {
+              const relativePath = existingFile.path.replace(`${targetPath}/`, '');
+              return !filesToSync.some(sourceFile => {
+                const sourceRelativePath = sourceFile.startsWith('./') ? sourceFile.substring(2) : sourceFile;
+                return sourceRelativePath === relativePath;
+              });
+            });
+            
+            for (const fileToDelete of filesToDelete) {
+              try {
+                await github.rest.repos.deleteFile({
+                  owner: targetOwner,
+                  repo: targetRepo,
+                  path: fileToDelete.path,
+                  message: `Remove ${fileToDelete.path}`,
+                  sha: fileToDelete.sha,
+                  branch: syncBranch
+                });
+                console.log(`Deleted: ${fileToDelete.path}`);
+              } catch (error) {
+                console.error(`Error deleting ${fileToDelete.path}:`, error.message);
+              }
+            }
+            
+            // Update/create files in target repo
+            let updatedCount = 0;
+            let createdCount = 0;
+            
+            for (const file of filesToSync) {
+              const content = fs.readFileSync(file);
+              const relativePath = file.startsWith('./') ? file.substring(2) : file;
+              const targetFilePath = path.join(targetPath, relativePath).replace(/\\/g, '/');
+              
+              try {
+                // Try to get existing file to get its SHA
+                const { data: existingFile } = await github.rest.repos.getContent({
+                  owner: targetOwner,
+                  repo: targetRepo,
+                  path: targetFilePath,
+                  ref: syncBranch
+                });
+                
+                // Check if content is different
+                const existingContent = Buffer.from(existingFile.content, 'base64');
+                if (!content.equals(existingContent)) {
+                  // Update existing file
+                  await github.rest.repos.createOrUpdateFileContents({
+                    owner: targetOwner,
+                    repo: targetRepo,
+                    path: targetFilePath,
+                    message: `Update ${targetFilePath}`,
+                    content: content.toString('base64'),
+                    branch: syncBranch,
+                    sha: existingFile.sha
+                  });
+                  updatedCount++;
+                  console.log(`Updated: ${targetFilePath}`);
+                }
+              } catch (error) {
+                if (error.status === 404) {
+                  // Create new file
+                  await github.rest.repos.createOrUpdateFileContents({
+                    owner: targetOwner,
+                    repo: targetRepo,
+                    path: targetFilePath,
+                    message: `Add ${targetFilePath}`,
+                    content: content.toString('base64'),
+                    branch: syncBranch
+                  });
+                  createdCount++;
+                  console.log(`Created: ${targetFilePath}`);
+                } else {
+                  console.error(`Error processing file ${targetFilePath}:`, error.message);
+                }
+              }
+            }
+            
+            console.log(`✅ Sync completed: ${createdCount} created, ${updatedCount} updated, ${filesToDelete.length} deleted`);
+            
+          } catch (error) {
+            console.error('❌ Sync failed:', error);
+            throw error;
+          }
+          
+    - name: Summary
+      run: echo "✅ Sync workflow completed"
