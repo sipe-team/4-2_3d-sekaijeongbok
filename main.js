@@ -5,6 +5,7 @@ import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 
+<<<<<<< HEAD
 import { ColorifyShader } from 'three/examples/jsm/shaders/ColorifyShader.js';
 import { RGBShiftShader } from 'three/examples/jsm/shaders/RGBShiftShader.js';
 import { DotScreenShader } from 'three/examples/jsm/shaders/DotScreenShader.js';
@@ -13,13 +14,21 @@ import { LuminosityShader } from 'three/addons/shaders/LuminosityShader.js';
 import { SobelOperatorShader } from 'three/addons/shaders/SobelOperatorShader.js';
 import GUI from 'three/examples/jsm/libs/lil-gui.module.min.js';
 import { color } from 'three/tsl';
+=======
+import { LuminosityShader } from 'three/addons/shaders/LuminosityShader.js';
+import { SobelOperatorShader } from 'three/addons/shaders/SobelOperatorShader.js';
+import GUI from 'three/examples/jsm/libs/lil-gui.module.min.js';
+>>>>>>> 63e7715036719ba0348fdacc5177de01061b00a1
 
 
 let camera, scene, renderer, composer;
 let effectSobel;
+<<<<<<< HEAD
 const colorParam = {
     color: new THREE.Color(0x00ffff)
 };
+=======
+>>>>>>> 63e7715036719ba0348fdacc5177de01061b00a1
 const params = { 
     enable: true
 };
@@ -93,6 +102,7 @@ function init(){
 				const renderPass = new RenderPass( scene, camera );
 				composer.addPass( renderPass );
 
+<<<<<<< HEAD
             // color to grayscale conversion
 
             //const effectGrayScale = new ShaderPass( LuminosityShader );
@@ -137,6 +147,36 @@ function init(){
             //
 
             window.addEventListener( 'resize', onWindowResize );
+=======
+				// color to grayscale conversion
+
+				const effectGrayScale = new ShaderPass( LuminosityShader );
+				composer.addPass( effectGrayScale );
+
+				// you might want to use a gaussian blur filter before
+				// the next pass to improve the result of the Sobel operator
+
+				// Sobel operator
+
+				effectSobel = new ShaderPass( SobelOperatorShader );
+				effectSobel.uniforms[ 'resolution' ].value.x = window.innerWidth * window.devicePixelRatio;
+				effectSobel.uniforms[ 'resolution' ].value.y = window.innerHeight * window.devicePixelRatio;
+				composer.addPass( effectSobel );
+
+				const controls = new OrbitControls( camera, renderer.domElement );
+				controls.enableZoom = false;
+
+				//
+
+				const gui = new GUI();
+
+				gui.add( params, 'enable' );
+				gui.open();
+
+				//
+
+				window.addEventListener( 'resize', onWindowResize );
+>>>>>>> 63e7715036719ba0348fdacc5177de01061b00a1
 }
 
 function onWindowResize() {
