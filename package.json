@@ -1,0 +1,23 @@
+{
+  "name": "three-js-gimoon",
+  "version": "1.0.0",
+  "description": "SIPE 조기문 Three.js 학습",
+  "type": "module",
+  "scripts": {
+    "build": "tsc && vite build",
+    "dev": "vite",
+    "generate-week": "node scripts/week-generator.js",
+    "week-1": "cd week-1 && vite",
+    "week-2": "cd week-2 && vite"
+  },
+  "dependencies": {
+    "three": "^0.169.0",
+    "lil-gui": "^0.19.2"
+  },
+  "devDependencies": {
+    "@types/three": "^0.169.0",
+    "typescript": "^5.5.3",
+    "vite": "^5.4.1"
+  },
+  "license": "MIT"
+}
