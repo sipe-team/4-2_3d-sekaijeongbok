@@ -5,9 +5,20 @@ import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 
+<<<<<<< HEAD
+import { ColorifyShader } from 'three/examples/jsm/shaders/ColorifyShader.js';
+import { RGBShiftShader } from 'three/examples/jsm/shaders/RGBShiftShader.js';
+import { DotScreenShader } from 'three/examples/jsm/shaders/DotScreenShader.js';
+import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 import { LuminosityShader } from 'three/addons/shaders/LuminosityShader.js';
 import { SobelOperatorShader } from 'three/addons/shaders/SobelOperatorShader.js';
 import GUI from 'three/examples/jsm/libs/lil-gui.module.min.js';
+import { color } from 'three/tsl';
+=======
+import { LuminosityShader } from 'three/addons/shaders/LuminosityShader.js';
+import { SobelOperatorShader } from 'three/addons/shaders/SobelOperatorShader.js';
+import GUI from 'three/examples/jsm/libs/lil-gui.module.min.js';
+>>>>>>> 63e7715036719ba0348fdacc5177de01061b00a1
 
 import { TTFLoader } from 'three/addons/loaders/TTFLoader.js';
 import { Font } from 'three/addons/loaders/FontLoader.js';
@@ -16,6 +27,7 @@ import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
 
 let camera, scene, renderer, composer;
 let effectSobel;
+<<<<<<< HEAD
 let container;
 let group, textMesh1, textMesh2, textGeom, material;
 let firstLetter = true;
@@ -39,6 +51,14 @@ let pointerXOnPointerDown = 0;
 
 let windowHalfX = window.innerWidth / 2;
 
+=======
+<<<<<<< HEAD
+const colorParam = {
+    color: new THREE.Color(0x00ffff)
+};
+=======
+>>>>>>> 63e7715036719ba0348fdacc5177de01061b00a1
+>>>>>>> 3fe9c8cec1a30acc7b389fefb56fa4a896040bb6
 const params = { 
     enable: true
 };
@@ -92,7 +112,57 @@ function init(){
         font = new Font( json );
         createText();
 
+<<<<<<< HEAD
     } );
+=======
+<<<<<<< HEAD
+            // color to grayscale conversion
+
+            //const effectGrayScale = new ShaderPass( LuminosityShader );
+            //composer.addPass( effectGrayScale );
+            //const effectDot = new ShaderPass(DotScreenShader);
+            //effectDot.uniforms['scale'].value = 10;
+            //composer.addPass(effectDot);   
+
+             const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
+             composer.addPass(bloomPass);
+
+            //const effectRGB = new ShaderPass(RGBShiftShader);
+            //effectRGB.uniforms['amount'].value = 0.0015;
+            //composer.addPass(effectRGB);
+
+
+            // you might want to use a gaussian blur filter before
+            // the next pass to improve the result of the Sobel operator
+
+            // Sobel operator
+
+            effectSobel = new ShaderPass( SobelOperatorShader );
+            effectSobel.uniforms[ 'resolution' ].value.x = window.innerWidth * window.devicePixelRatio;
+            effectSobel.uniforms[ 'resolution' ].value.y = window.innerHeight * window.devicePixelRatio;
+            composer.addPass( effectSobel );
+
+            const effectColorify = new ShaderPass(ColorifyShader);
+            effectColorify.uniforms['color'].value = new THREE.Color(0x00ffff);
+            composer.addPass(effectColorify);
+
+            const controls = new OrbitControls( camera, renderer.domElement );
+            controls.enableZoom = true;
+
+            //
+
+            const gui = new GUI();
+
+            gui.add( params, 'enable' );
+            gui.add( colorParam, 'color')
+            gui.open();
+
+            //
+
+            window.addEventListener( 'resize', onWindowResize );
+=======
+				// color to grayscale conversion
+>>>>>>> 3fe9c8cec1a30acc7b389fefb56fa4a896040bb6
 
     const plane = new THREE.Mesh(
         new THREE.PlaneGeometry( 10000, 10000 ),
@@ -165,9 +235,21 @@ function init(){
     container.style.touchAction = 'none';
     container.addEventListener( 'pointerdown', onPointerDown );
 
+<<<<<<< HEAD
     document.addEventListener( 'keypress', onDocumentKeyPress );
     document.addEventListener( 'keydown', onDocumentKeyDown );
     window.addEventListener( 'resize', onWindowResize );
+=======
+				const gui = new GUI();
+
+				gui.add( params, 'enable' );
+				gui.open();
+
+				//
+
+				window.addEventListener( 'resize', onWindowResize );
+>>>>>>> 63e7715036719ba0348fdacc5177de01061b00a1
+>>>>>>> 3fe9c8cec1a30acc7b389fefb56fa4a896040bb6
 }
 
 function onWindowResize() {
