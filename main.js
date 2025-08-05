@@ -26,13 +26,13 @@ let container;
 let group, textMesh1, textMesh2, textGeom, material;
 let firstLetter = true;
 
-let text = 'three.js';
-const depth = 20,
-    size = 70,
-    hover = 30,
+let text = 'SIP ';
+const depth = 1,
+    size = 3,
+    hover = -100,
     curveSegments = 4,
     bevelThickness = 2,
-    bevelSize = 1.5;
+    bevelSize = 0.5;
 
 let font = null;
 const mirror = true;
@@ -45,6 +45,7 @@ let pointerXOnPointerDown = 0;
 
 let windowHalfX = window.innerWidth / 2;
 
+let loader, textGeo;
 
 const colorParam = {
     color: new THREE.Color(0x00ffff)
@@ -79,11 +80,18 @@ function init(){
     renderer.setAnimationLoop( animate );
     document.body.appendChild( renderer.domElement );
 
+
+    // font 로딩
+    loader = new TTFLoader();
+    loader.load('Resouce/Font/ari_w9500/ari-w9500-bold.ttf', function (fontData) {
+        font = new Font(fontData);
+        createText();
+    });
     const geometry = new THREE.TorusKnotGeometry(1, 0.3, 256, 32);
     const material = new THREE.MeshPhongMaterial( { color: 0xffff00 } );
 
     const mesh = new THREE.Mesh( geometry, material );
-    mesh.position.set(0, 0, -4);
+    mesh.position.set(0, 0, -3);
     scene.add( mesh );
 
     //
@@ -142,7 +150,7 @@ function init(){
         new THREE.PlaneGeometry( 10000, 10000 ),
         new THREE.MeshBasicMaterial( { color: 0xffffff, opacity: 0.5, transparent: true } )
     );
-    plane.position.y = 100;
+    plane.position.y = 0;
     plane.rotation.x = - Math.PI / 2;
     scene.add( plane );
     //
@@ -158,6 +166,10 @@ function init(){
     // 3D 모델 로딩용 GLTF Loader 객체 생성
     const gloader = new GLTFLoader();
     gloader.load('Resouce/3D/sipe_arrow.glb', function(gltf){
+        gltf.scene.scale.set(.6, .5, .5);
+        gltf.scene.rotateZ(Math.PI / 2);
+        gltf.scene.rotateX(Math.PI / 2);
+        gltf.scene.position.set(4.5, 1.5, -5.5);
     scene.add(gltf.scene);
     }, undefined, function(error){
         console.error(error);
@@ -256,6 +268,9 @@ function onDocumentKeyPress( event ) {
 
 function createText() {
 
+           const material = new THREE.MeshPhongMaterial( { color: 0xffff00 } );
+
+
     textGeo = new TextGeometry( text, {
 
         font: font,
@@ -266,7 +281,7 @@ function createText() {
 
         bevelThickness: bevelThickness,
         bevelSize: bevelSize,
-        bevelEnabled: true
+        bevelEnabled: false
 
     } );
 
@@ -279,7 +294,7 @@ function createText() {
 
     textMesh1.position.x = centerOffset;
     textMesh1.position.y = hover;
-    textMesh1.position.z = 0;
+    textMesh1.position.z = -6;
 
     textMesh1.rotation.x = 0;
     textMesh1.rotation.y = Math.PI * 2;
@@ -291,14 +306,13 @@ function createText() {
         textMesh2 = new THREE.Mesh( textGeo, material );
 
         textMesh2.position.x = centerOffset;
-        textMesh2.position.y = - hover;
-        textMesh2.position.z = depth;
+        textMesh2.position.y = hover;
+        textMesh2.position.z = -6 + depth;
 
         textMesh2.rotation.x = Math.PI;
         textMesh2.rotation.y = Math.PI * 2;
 
         group.add( textMesh2 );
-
     }
 
 }
