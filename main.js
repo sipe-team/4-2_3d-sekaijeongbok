@@ -5,20 +5,14 @@ import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 
-<<<<<<< HEAD
 import { ColorifyShader } from 'three/examples/jsm/shaders/ColorifyShader.js';
 import { RGBShiftShader } from 'three/examples/jsm/shaders/RGBShiftShader.js';
 import { DotScreenShader } from 'three/examples/jsm/shaders/DotScreenShader.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
-import { LuminosityShader } from 'three/addons/shaders/LuminosityShader.js';
-import { SobelOperatorShader } from 'three/addons/shaders/SobelOperatorShader.js';
-import GUI from 'three/examples/jsm/libs/lil-gui.module.min.js';
 import { color } from 'three/tsl';
-=======
 import { LuminosityShader } from 'three/addons/shaders/LuminosityShader.js';
 import { SobelOperatorShader } from 'three/addons/shaders/SobelOperatorShader.js';
 import GUI from 'three/examples/jsm/libs/lil-gui.module.min.js';
->>>>>>> 63e7715036719ba0348fdacc5177de01061b00a1
 
 import { TTFLoader } from 'three/addons/loaders/TTFLoader.js';
 import { Font } from 'three/addons/loaders/FontLoader.js';
@@ -27,7 +21,7 @@ import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
 
 let camera, scene, renderer, composer;
 let effectSobel;
-<<<<<<< HEAD
+
 let container;
 let group, textMesh1, textMesh2, textGeom, material;
 let firstLetter = true;
@@ -51,14 +45,11 @@ let pointerXOnPointerDown = 0;
 
 let windowHalfX = window.innerWidth / 2;
 
-=======
-<<<<<<< HEAD
+
 const colorParam = {
     color: new THREE.Color(0x00ffff)
 };
-=======
->>>>>>> 63e7715036719ba0348fdacc5177de01061b00a1
->>>>>>> 3fe9c8cec1a30acc7b389fefb56fa4a896040bb6
+
 const params = { 
     enable: true
 };
@@ -73,15 +64,20 @@ function init(){
     scene = new THREE.Scene();
     //scene.background = new THREE.Color('white');
     //camera 객체 생성;
-    const camera = new THREE.PerspectiveCamera(
+   camera = new THREE.PerspectiveCamera(
         40, // field of view (시야각)
         window.innerWidth/window.innerHeight, // aspect ratio(가로 세로 길이의 비율)
         0.1, // near (근거리 클리핑 평면)
         1000 // far (원거리 클리핑 평면)
     );
-    //camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.1, 100 );
     camera.position.set( 0, 2, 10 );
     camera.lookAt( scene.position );
+
+    renderer = new THREE.WebGLRenderer();
+    renderer.setPixelRatio( window.devicePixelRatio );
+    renderer.setSize( window.innerWidth, window.innerHeight );
+    renderer.setAnimationLoop( animate );
+    document.body.appendChild( renderer.domElement );
 
     const geometry = new THREE.TorusKnotGeometry(1, 0.3, 256, 32);
     const material = new THREE.MeshPhongMaterial( { color: 0xffff00 } );
@@ -105,64 +101,42 @@ function init(){
 
     scene.add( group );
 
-    const tloader = new TTFLoader();
+// postprocessing
 
-    tloader.load( 'fonts/ttf/kenpixel.ttf', function ( json ) {
+    composer = new EffectComposer(renderer);
+    const renderPass = new RenderPass( scene, camera );
+    composer.addPass( renderPass );
+    // color to grayscale conversion
 
-        font = new Font( json );
-        createText();
+    //const effectGrayScale = new ShaderPass( LuminosityShader );
+    //composer.addPass( effectGrayScale );
+    //const effectDot = new ShaderPass(DotScreenShader);
+    //effectDot.uniforms['scale'].value = 10;
+    //composer.addPass(effectDot);   
 
-<<<<<<< HEAD
-    } );
-=======
-<<<<<<< HEAD
-            // color to grayscale conversion
+        const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
+        composer.addPass(bloomPass);
 
-            //const effectGrayScale = new ShaderPass( LuminosityShader );
-            //composer.addPass( effectGrayScale );
-            //const effectDot = new ShaderPass(DotScreenShader);
-            //effectDot.uniforms['scale'].value = 10;
-            //composer.addPass(effectDot);   
+    //const effectRGB = new ShaderPass(RGBShiftShader);
+    //effectRGB.uniforms['amount'].value = 0.0015;
+    //composer.addPass(effectRGB);
 
-             const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
-             composer.addPass(bloomPass);
+    // you might want to use a gaussian blur filter before
+    // the next pass to improve the result of the Sobel operator
 
-            //const effectRGB = new ShaderPass(RGBShiftShader);
-            //effectRGB.uniforms['amount'].value = 0.0015;
-            //composer.addPass(effectRGB);
+    // Sobel operator
 
+    effectSobel = new ShaderPass( SobelOperatorShader );
+    effectSobel.uniforms[ 'resolution' ].value.x = window.innerWidth * window.devicePixelRatio;
+    effectSobel.uniforms[ 'resolution' ].value.y = window.innerHeight * window.devicePixelRatio;
+    composer.addPass( effectSobel );
 
-            // you might want to use a gaussian blur filter before
-            // the next pass to improve the result of the Sobel operator
+    const effectColorify = new ShaderPass(ColorifyShader);
+    effectColorify.uniforms['color'].value = new THREE.Color(0x00ffff);
+    composer.addPass(effectColorify);
+    //
 
-            // Sobel operator
-
-            effectSobel = new ShaderPass( SobelOperatorShader );
-            effectSobel.uniforms[ 'resolution' ].value.x = window.innerWidth * window.devicePixelRatio;
-            effectSobel.uniforms[ 'resolution' ].value.y = window.innerHeight * window.devicePixelRatio;
-            composer.addPass( effectSobel );
-
-            const effectColorify = new ShaderPass(ColorifyShader);
-            effectColorify.uniforms['color'].value = new THREE.Color(0x00ffff);
-            composer.addPass(effectColorify);
-
-            const controls = new OrbitControls( camera, renderer.domElement );
-            controls.enableZoom = true;
-
-            //
-
-            const gui = new GUI();
-
-            gui.add( params, 'enable' );
-            gui.add( colorParam, 'color')
-            gui.open();
-
-            //
-
-            window.addEventListener( 'resize', onWindowResize );
-=======
-				// color to grayscale conversion
->>>>>>> 3fe9c8cec1a30acc7b389fefb56fa4a896040bb6
+    window.addEventListener( 'resize', onWindowResize );
 
     const plane = new THREE.Mesh(
         new THREE.PlaneGeometry( 10000, 10000 ),
@@ -172,12 +146,6 @@ function init(){
     plane.rotation.x = - Math.PI / 2;
     scene.add( plane );
     //
-
-    renderer = new THREE.WebGLRenderer();
-    renderer.setPixelRatio( window.devicePixelRatio );
-    renderer.setSize( window.innerWidth, window.innerHeight );
-    renderer.setAnimationLoop( animate );
-    document.body.appendChild( renderer.domElement );
 
     const color = 0xFFFFFF;
     const intensity = 1;
@@ -194,32 +162,18 @@ function init(){
     }, undefined, function(error){
         console.error(error);
     });
+
     //Web Graphics Library 웹 상에서 2D 및 3D 그래픽 렌더링을 위한 로우레벨 javaScript API
     // const renderer = new THREE.WebGLRenderer({
     //    canvas : document.querySelector("#canvas"),
     //    antialias : true
     //});
 
-// postprocessing
-
-    composer = new EffectComposer( renderer );
-    const renderPass = new RenderPass( scene, camera );
-    composer.addPass( renderPass );
-
-    // color to grayscale conversion
-
-    const effectGrayScale = new ShaderPass( LuminosityShader );
-    composer.addPass( effectGrayScale );
 
     // you might want to use a gaussian blur filter before
     // the next pass to improve the result of the Sobel operator
 
     // Sobel operator
-
-    effectSobel = new ShaderPass( SobelOperatorShader );
-    effectSobel.uniforms[ 'resolution' ].value.x = window.innerWidth * window.devicePixelRatio;
-    effectSobel.uniforms[ 'resolution' ].value.y = window.innerHeight * window.devicePixelRatio;
-    composer.addPass( effectSobel );
 
     const controls = new OrbitControls( camera, renderer.domElement );
     controls.enableZoom = true;
@@ -235,21 +189,9 @@ function init(){
     container.style.touchAction = 'none';
     container.addEventListener( 'pointerdown', onPointerDown );
 
-<<<<<<< HEAD
     document.addEventListener( 'keypress', onDocumentKeyPress );
     document.addEventListener( 'keydown', onDocumentKeyDown );
     window.addEventListener( 'resize', onWindowResize );
-=======
-				const gui = new GUI();
-
-				gui.add( params, 'enable' );
-				gui.open();
-
-				//
-
-				window.addEventListener( 'resize', onWindowResize );
->>>>>>> 63e7715036719ba0348fdacc5177de01061b00a1
->>>>>>> 3fe9c8cec1a30acc7b389fefb56fa4a896040bb6
 }
 
 function onWindowResize() {
