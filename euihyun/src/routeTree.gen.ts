@@ -10,32 +10,42 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SunRouteImport } from './routes/sun'
+import { Route as MonumentRouteImport } from './routes/monument'
 
 const SunRoute = SunRouteImport.update({
   id: '/sun',
   path: '/sun',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MonumentRoute = MonumentRouteImport.update({
+  id: '/monument',
+  path: '/monument',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
+  '/monument': typeof MonumentRoute
   '/sun': typeof SunRoute
 }
 export interface FileRoutesByTo {
+  '/monument': typeof MonumentRoute
   '/sun': typeof SunRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
+  '/monument': typeof MonumentRoute
   '/sun': typeof SunRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/sun'
+  fullPaths: '/monument' | '/sun'
   fileRoutesByTo: FileRoutesByTo
-  to: '/sun'
-  id: '__root__' | '/sun'
+  to: '/monument' | '/sun'
+  id: '__root__' | '/monument' | '/sun'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
+  MonumentRoute: typeof MonumentRoute
   SunRoute: typeof SunRoute
 }
 
@@ -48,10 +58,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SunRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/monument': {
+      id: '/monument'
+      path: '/monument'
+      fullPath: '/monument'
+      preLoaderRoute: typeof MonumentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
+  MonumentRoute: MonumentRoute,
   SunRoute: SunRoute,
 }
 export const routeTree = rootRouteImport
