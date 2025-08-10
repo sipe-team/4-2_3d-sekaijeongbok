@@ -19,5 +19,5 @@ root.render(
     }}
   >
     <Experience />
-  </Canvas>,
+  </Canvas>
 );
