@@ -182,17 +182,32 @@ export default function Experience() {
     const handleKeyDown = (e: KeyboardEvent) => {
       setLogoPosition(([x, y, z]) => {
         const step = 0.3;
-        switch (e.key) {
-          case "ArrowUp":
-            return [x, y + step, z];
-          case "ArrowDown":
-            return [x, y - step, z];
-          case "ArrowLeft":
-            return [x - step, y, z];
-          case "ArrowRight":
-            return [x + step, y, z];
-          default:
-            return [x, y, z];
+        const zStep = 0.5; // Z축 이동 거리
+
+        // Command(Meta) + 화살표 키 조합 확인
+        if (e.metaKey) {
+          switch (e.key) {
+            case "ArrowUp":
+              return [x, y, z + zStep]; // 앞으로 (가까워짐)
+            case "ArrowDown":
+              return [x, y, z - zStep]; // 뒤로 (멀어짐)
+            default:
+              return [x, y, z];
+          }
+        } else {
+          // 일반 화살표 키 (기존 동작)
+          switch (e.key) {
+            case "ArrowUp":
+              return [x, y + step, z];
+            case "ArrowDown":
+              return [x, y - step, z];
+            case "ArrowLeft":
+              return [x - step, y, z];
+            case "ArrowRight":
+              return [x + step, y, z];
+            default:
+              return [x, y, z];
+          }
         }
       });
     };
