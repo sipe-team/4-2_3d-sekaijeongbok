@@ -1,4 +1,4 @@
-import { Box, Plane } from "@react-three/drei";
+import { Box, Plane, useTexture } from "@react-three/drei";
 import { Canvas, useFrame, useLoader, useThree } from "@react-three/fiber";
 import {
   Component,
@@ -22,6 +22,7 @@ interface Artwork {
 }
 
 const frontPlanePosition = [0, 2, -10] as const;
+const backPlanePosition = [0, 2, 10] as const;
 const leftPlanePosition = [-10, 2, 0] as const;
 const rightPlanePosition = [10, 2, 0] as const;
 
@@ -288,8 +289,78 @@ function ArtworkFrame({
   );
 }
 
+export function RoomWalls() {
+  const [color, roughness, normal, metallic] = useTexture([
+    "/textures/stone/color.jpg",
+    // "/textures/stone/displacement.tiff",
+    "/textures/stone/roughness.jpg",
+    "/textures/stone/normal.png",
+    "/textures/stone/metallic.jpg",
+  ]);
+
+  return <>
+  {/* Gallery floor - 매우 밝은 흰색 대리석 느낌 */}
+  <Plane
+          args={[20, 20]}
+          rotation={[-Math.PI / 2, 0, 0]}
+          position={[0, -3, 0]}
+        >
+          <meshStandardMaterial
+            color="#ffffff" 
+            roughnessMap={roughness}
+            normalMap={normal}
+            metalnessMap={metallic}
+            metalness={1}
+            roughness={0}
+          />
+        </Plane>
+
+        <Plane
+          args={[20, 20]}
+          rotation={[Math.PI / 2, 0, 0]}
+          position={[0, 10, 0]}
+        >
+          <meshStandardMaterial
+            color="#ffffff" 
+            roughnessMap={roughness}
+            normalMap={normal}
+            metalnessMap={metallic}
+            metalness={1}
+            roughness={0}
+          />
+        </Plane>
+   {/* Gallery walls - 깔끔한 흰색 */}
+     <Plane args={[20, 50]} position={frontPlanePosition}>
+          <meshStandardMaterial color="#ffffff" roughnessMap={roughness} normalMap={normal} metalnessMap={metallic} metalness={1} roughness={0} />
+        </Plane>
+
+     <Plane args={[20, 50]} position={backPlanePosition} rotation={[0, Math.PI, 0]}>
+          <meshStandardMaterial color="#ffffff" roughnessMap={roughness} normalMap={normal} metalnessMap={metallic} metalness={1} roughness={0} />
+        </Plane>
+
+
+        {/* 측면 벽 */}
+        <Plane
+          args={[20, 50]}
+          position={leftPlanePosition}
+          rotation={[0, Math.PI / 2, 0]}
+        >
+          <meshStandardMaterial color="#ffffff" roughnessMap={roughness} normalMap={normal} metalnessMap={metallic} metalness={1} roughness={0} />
+        </Plane>
+
+        <Plane
+          args={[20, 50]}
+          position={rightPlanePosition}
+          rotation={[0, -Math.PI / 2, 0]}
+        >
+          <meshStandardMaterial color="#ffffff" roughnessMap={roughness} normalMap={normal} metalnessMap={metallic} metalness={1} roughness={0} />
+        </Plane>
+  </>
+}
+
 export function Room() {
   const [selectedArtwork, setSelectedArtwork] = useState<Artwork | null>(null);
+ 
 
   return (
     <div className="w-full h-screen bg-white relative">
@@ -312,11 +383,6 @@ export function Room() {
           intensity={1.5}
           color="#ffffff"
         />
-        <directionalLight
-          position={[0, 10, -5]}
-          intensity={1.2}
-          color="#ffffff"
-        />
 
         {/* 강력한 천장 조명 효과 */}
         <pointLight position={[0, 8, 0]} intensity={1.2} color="#ffffff" />
@@ -325,40 +391,9 @@ export function Room() {
         <pointLight position={[0, 8, 4]} intensity={0.8} color="#ffffff" />
         <pointLight position={[0, 8, -4]} intensity={0.8} color="#ffffff" />
 
-        {/* Gallery floor - 매우 밝은 흰색 대리석 느낌 */}
-        <Plane
-          args={[20, 20]}
-          rotation={[-Math.PI / 2, 0, 0]}
-          position={[0, -3, 0]}
-        >
-          <meshStandardMaterial
-            color="#f8f9fa"
-            metalness={0.1}
-            roughness={0.2}
-          />
-        </Plane>
+        
 
-        {/* Gallery walls - 깔끔한 흰색 */}
-        <Plane args={[20, 10]} position={frontPlanePosition}>
-          <meshStandardMaterial color="#ffffff" />
-        </Plane>
-
-        {/* 측면 벽 */}
-        <Plane
-          args={[20, 10]}
-          position={leftPlanePosition}
-          rotation={[0, Math.PI / 2, 0]}
-        >
-          <meshStandardMaterial color="#ffffff" />
-        </Plane>
-
-        <Plane
-          args={[20, 10]}
-          position={rightPlanePosition}
-          rotation={[0, -Math.PI / 2, 0]}
-        >
-          <meshStandardMaterial color="#ffffff" />
-        </Plane>
+       <RoomWalls />
 
         {/* Artworks */}
         {artworks.map((artwork) => (
