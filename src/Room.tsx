@@ -48,6 +48,15 @@ const artworks: Artwork[] = [
     color: "#4ecdc4",
     previewImage: "/6191.png",
   },
+  {
+    id: "isometric room",
+    title: "시간의 방",
+    description: "시간에 따라 태양 위치와 조명이 변화하는 3D 아이소메트릭 룸",
+    link: "https://jeanne-room.vercel.app",
+    position: [-4, 2, 0],
+    color: "#ffffff",
+    previewImage: "/isometric-room.png",
+  },
 ];
 
 function ImagePreview({ imagePath }: { imagePath: string }) {
