@@ -222,6 +222,17 @@ function FirstPersonControls() {
     // Y축 이동 제거 (수평 이동만)
     moveVector.y = 0;
 
+    // 현재 위치
+    const nextPosition = camera.position.clone().add(moveVector);
+
+    // x, z 제한
+    if (Math.abs(nextPosition.x) > 9) {
+      moveVector.x = 0;
+    }
+    if (Math.abs(nextPosition.z) > 9) {
+      moveVector.z = 0;
+    }
+
     // 카메라 위치 업데이트
     camera.position.add(moveVector);
   });
