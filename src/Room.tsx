@@ -65,6 +65,16 @@ const artworks: Artwork[] = [
     color: "#ffffff",
     previewImage: "/isometric-room.png",
   },
+  {
+    id: "atomic slash",
+    title: "아토믹 참",
+    description: "드래그하여 큐브를 조각내요",
+    link: "https://sungpaks.github.io/atomic-slash/",
+    position: [rightPlanePosition[0] - 0.1, 0, -artworkGap],
+    rotation: [0, -Math.PI / 2, 0],
+    color: "#ffffff",
+    previewImage: "/atomic-slash.gif",
+  },
 ];
 
 function ImagePreview({ imagePath }: { imagePath: string }) {
