@@ -76,6 +76,26 @@ const artworks: Artwork[] = [
     color: "#ffffff",
     previewImage: "/atomic-slash.gif",
   },
+    {
+    id: "3d audio visualizer",
+    title: "3D Audio Viusalizer",
+    description: "소리바다 채널의 자칭 메인테이너로서 소임을 다하기 위한 3D 오디오 시각화",
+    link: "https://3daudiovisualizer.vercel.app/",
+    position: [rightPlanePosition[0] - 0.1, 0, 0],
+    rotation: [0, -Math.PI / 2, 0],
+    color: "#ffffff",
+    previewImage: "/3d-audio-visualizer.png",
+  },
+    {
+    id: "type arrow",
+    title: "동아리에 대한 애정과 멋진 시각효과",
+    description: "E로 끝나는 영단어를 타이핑하고 캡쳐해보는 재미",
+    link: "https://type-arrow.vercel.app/",
+    position: [rightPlanePosition[0] - 0.1, 0, artworkGap],
+    rotation: [0, -Math.PI / 2, 0],
+    color: "#ffffff",
+    previewImage: "/type-arrow.png",
+  },
 ];
 
 function ImagePreview({ imagePath }: { imagePath: string }) {
