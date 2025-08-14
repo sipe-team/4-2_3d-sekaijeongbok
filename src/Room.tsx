@@ -318,7 +318,7 @@ export function RoomWalls() {
         <Plane
           args={[20, 20]}
           rotation={[Math.PI / 2, 0, 0]}
-          position={[0, 10, 0]}
+          position={[0, 20, 0]}
         >
           <meshStandardMaterial
             color="#ffffff" 
