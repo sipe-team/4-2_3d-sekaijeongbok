@@ -374,22 +374,22 @@ export function Room() {
         {/* Lighting - 매우 밝은 전시회 스타일 */}
         <ambientLight intensity={1.5} color="#ffffff" />
         <directionalLight
-          position={[5, 10, 5]}
+          position={[5, 19, 5]}
           intensity={2.0}
           color="#ffffff"
         />
         <directionalLight
-          position={[-5, 10, 5]}
+          position={[-5, 19, 5]}
           intensity={1.5}
           color="#ffffff"
         />
 
         {/* 강력한 천장 조명 효과 */}
-        <pointLight position={[0, 8, 0]} intensity={1.2} color="#ffffff" />
-        <pointLight position={[-4, 8, 0]} intensity={1.0} color="#ffffff" />
-        <pointLight position={[4, 8, 0]} intensity={1.0} color="#ffffff" />
-        <pointLight position={[0, 8, 4]} intensity={0.8} color="#ffffff" />
-        <pointLight position={[0, 8, -4]} intensity={0.8} color="#ffffff" />
+        <pointLight position={[0, 19, 0]} intensity={1.2} color="#ffffff" />
+        <pointLight position={[-4, 19, 0]} intensity={1.0} color="#ffffff" />
+        <pointLight position={[4, 19, 0]} intensity={1.0} color="#ffffff" />
+        <pointLight position={[0, 19, 4]} intensity={0.8} color="#ffffff" />
+        <pointLight position={[0, 19, -4]} intensity={0.8} color="#ffffff" />
 
         
 
