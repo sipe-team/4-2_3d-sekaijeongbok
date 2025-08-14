@@ -16,9 +16,16 @@ interface Artwork {
   description: string;
   link: string;
   position: [number, number, number];
+  rotation?: [number, number, number];
   color: string;
   previewImage: string;
 }
+
+const frontPlanePosition = [0, 2, -10] as const;
+const leftPlanePosition = [-10, 2, 0] as const;
+const rightPlanePosition = [10, 2, 0] as const;
+
+const artworkGap = 5;
 
 const artworks: Artwork[] = [
   {
@@ -26,7 +33,7 @@ const artworks: Artwork[] = [
     title: "태양",
     description: "커스텀 셰이더로 만든 태양과 불 효과",
     link: "/sun",
-    position: [-4, 0, 0],
+    position: [-artworkGap, 0, frontPlanePosition[2] + 0.1],
     color: "#ff6b35",
     previewImage: "/sun.png",
   },
@@ -35,7 +42,7 @@ const artworks: Artwork[] = [
     title: "모뉴먼트 밸리",
     description: "3D 환경과 인터랙션",
     link: "/monument",
-    position: [0, 0, 0],
+    position: [0, 0, frontPlanePosition[2] + 0.1],
     color: "#4ecdc4",
     previewImage: "/monument.png",
   },
@@ -44,7 +51,7 @@ const artworks: Artwork[] = [
     title: "커비",
     description: "커비다",
     link: "https://kirby-drain.vercel.app/",
-    position: [4, 0, 0],
+    position: [artworkGap, 0, frontPlanePosition[2] + 0.1],
     color: "#4ecdc4",
     previewImage: "/6191.png",
   },
@@ -53,7 +60,8 @@ const artworks: Artwork[] = [
     title: "시간의 방",
     description: "시간에 따라 태양 위치와 조명이 변화하는 3D 아이소메트릭 룸",
     link: "https://jeanne-room.vercel.app",
-    position: [-4, 2, 0],
+    position: [leftPlanePosition[0] + 0.1, 0, -artworkGap],
+    rotation: [0, Math.PI / 2, 0],
     color: "#ffffff",
     previewImage: "/isometric-room.png",
   },
@@ -238,6 +246,7 @@ function ArtworkFrame({
     <group
       ref={frameRef}
       position={artwork.position}
+      rotation={artwork.rotation}
       onPointerEnter={handlePointerEnter}
       onPointerLeave={handlePointerLeave}
       onClick={handleClick}
@@ -320,14 +329,14 @@ export function Room() {
         </Plane>
 
         {/* Gallery walls - 깔끔한 흰색 */}
-        <Plane args={[20, 10]} position={[0, 2, -10]}>
+        <Plane args={[20, 10]} position={frontPlanePosition}>
           <meshStandardMaterial color="#ffffff" />
         </Plane>
 
         {/* 측면 벽 */}
         <Plane
           args={[20, 10]}
-          position={[-10, 2, 0]}
+          position={leftPlanePosition}
           rotation={[0, Math.PI / 2, 0]}
         >
           <meshStandardMaterial color="#ffffff" />
@@ -335,7 +344,7 @@ export function Room() {
 
         <Plane
           args={[20, 10]}
-          position={[10, 2, 0]}
+          position={rightPlanePosition}
           rotation={[0, -Math.PI / 2, 0]}
         >
           <meshStandardMaterial color="#ffffff" />
