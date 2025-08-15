@@ -11,32 +11,27 @@ export const Route = createFileRoute("/sun")({
 
 function SunCore() {
   // Create gradient texture immediately
-  const createGradientTexture = () => {
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d")!;
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d")!;
 
-    canvas.width = 256;
-    canvas.height = 256;
+  canvas.width = 256;
+  canvas.height = 256;
 
-    const gradient = ctx.createRadialGradient(128, 128, 0, 128, 128, 128);
-    gradient.addColorStop(0, "#ffffff"); // White hot center
-    gradient.addColorStop(0.4, "#ffdd00"); // Yellow
-    gradient.addColorStop(0.8, "#ff8800"); // Orange
-    gradient.addColorStop(1, "#ff4400"); // Red edge
+  const gradient = ctx.createRadialGradient(128, 128, 0, 128, 128, 128);
+  gradient.addColorStop(0, "#ffffff"); // White hot center
+  gradient.addColorStop(0.4, "#ffdd00"); // Yellow
+  gradient.addColorStop(0.8, "#ff8800"); // Orange
+  gradient.addColorStop(1, "#ff4400"); // Red edge
 
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, 256, 256);
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, 256, 256);
 
-    const texture = new THREE.CanvasTexture(canvas);
-    texture.needsUpdate = true;
-    return texture;
-  };
-
-  const texture = useMemo(() => createGradientTexture(), []);
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.needsUpdate = true;
 
   return (
     <mesh position={[0, 0, 0.1]}>
-      <circleGeometry args={[0.6, 64]} />
+      <circleGeometry args={[1.0, 64]} />
       <meshBasicMaterial map={texture} />
     </mesh>
   );
