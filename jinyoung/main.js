@@ -1,22 +1,19 @@
 import * as THREE from 'three';
-import { GLTFLoader } from 'three/examples/jsm/Addons.js';
-import { OrbitControls } from 'three/examples/jsm/Addons.js';
-import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
-import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
-import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
+import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
+
 
 import { ColorifyShader } from 'three/examples/jsm/shaders/ColorifyShader.js';
-import { RGBShiftShader } from 'three/examples/jsm/shaders/RGBShiftShader.js';
-import { DotScreenShader } from 'three/examples/jsm/shaders/DotScreenShader.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
-import { color } from 'three/tsl';
-import { LuminosityShader } from 'three/addons/shaders/LuminosityShader.js';
-import { SobelOperatorShader } from 'three/addons/shaders/SobelOperatorShader.js';
+import { SobelOperatorShader } from 'three/examples/jsm/shaders/SobelOperatorShader.js';
 import GUI from 'three/examples/jsm/libs/lil-gui.module.min.js';
 
-import { TTFLoader } from 'three/addons/loaders/TTFLoader.js';
-import { Font } from 'three/addons/loaders/FontLoader.js';
-import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
+import { TTFLoader } from 'three/examples/jsm/loaders/TTFLoader.js';
+import { Font } from 'three/examples/jsm/loaders/FontLoader.js';
+import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js';
 
 
 let camera, scene, renderer, composer;
@@ -45,53 +42,66 @@ let pointerXOnPointerDown = 0;
 
 let windowHalfX = window.innerWidth / 2;
 
-let loader, textGeo;
+let loader;
 
-const colorParam = {
-    color: new THREE.Color(0x00ffff)
+let arrow, arrowMirror;
+
+// Ambient Light 색상을 변경하기 위한 색상 파라미터 추가
+const ambientLightColor = {
+    color: '#e7e7e7'
 };
 
-const params = { 
-    enable: true
-};
 
 init();
 
 function init(){
     container = document.createElement('div');
     document.body.appendChild(container);
-
+// 안내 문구 추가
+    const hintDiv = document.createElement('div');
+    hintDiv.id = 'hintMessage';
+    hintDiv.innerText = "Think of any word in your head that ends with the letter 'e' and type it!";
+    Object.assign(hintDiv.style, {
+        position: 'absolute',
+        top: '20px',
+        left: '50%',
+        transform: 'translateX(-50%)',
+        color: 'white',
+        fontSize: '20px',
+        fontFamily: 'Arial, sans-serif',
+        textAlign: 'center',
+        zIndex: '10',
+        backgroundColor: 'rgba(0, 0, 0, 0.4)',
+        padding: '8px 12px',
+        borderRadius: '6px'
+    });
+    document.body.appendChild(hintDiv);
     //scene 객체 생성
     scene = new THREE.Scene();
-    //scene.background = new THREE.Color('white');
-    //camera 객체 생성;
+    //camera 객체 생성
    camera = new THREE.PerspectiveCamera(
-        40, // field of view (시야각)
-        window.innerWidth/window.innerHeight, // aspect ratio(가로 세로 길이의 비율)
-        0.1, // near (근거리 클리핑 평면)
-        1000 // far (원거리 클리핑 평면)
+        40, // field of view
+        window.innerWidth/window.innerHeight, // aspect ratio
+        0.1, // near
+        1000 // far 
     );
-    camera.position.set( 0, 2, 10 );
+    camera.position.set( -3, 1, 10 );
     camera.lookAt( scene.position );
 
+    //Web Graphics Library 웹 상에서 2D 및 3D 그래픽 렌더링을 위한 로우레벨 javaScript API
     renderer = new THREE.WebGLRenderer();
     renderer.setPixelRatio( window.devicePixelRatio );
     renderer.setSize( window.innerWidth, window.innerHeight );
     renderer.setAnimationLoop( animate );
     document.body.appendChild( renderer.domElement );
 
+
     // font 로딩
     loader = new TTFLoader();
-    loader.load('Resouce/Font/ari_w9500/ari-w9500-bold.ttf', function (fontData) {
+    loader.load('/Resource/Font/ari_w9500/ari-w9500-bold.ttf', function (fontData) {
         font = new Font(fontData);
         createText();
     });
-    const geometry = new THREE.TorusKnotGeometry(1, 0.3, 256, 32);
-    const material = new THREE.MeshPhongMaterial( { color: 0xffff00 } );
-
-    const mesh = new THREE.Mesh( geometry, material );
-    mesh.position.set(0, 0, -3);
-    scene.add( mesh );
 
     const ambientLight = new THREE.AmbientLight( 0xe7e7e7 );
     scene.add( ambientLight );
@@ -111,13 +121,14 @@ function init(){
     const renderPass = new RenderPass( scene, camera );
     composer.addPass( renderPass );
 
-    const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
-    composer.addPass(bloomPass);
-
+    // Sobel operator
     effectSobel = new ShaderPass( SobelOperatorShader );
     effectSobel.uniforms[ 'resolution' ].value.x = window.innerWidth * window.devicePixelRatio;
     effectSobel.uniforms[ 'resolution' ].value.y = window.innerHeight * window.devicePixelRatio;
     composer.addPass( effectSobel );
+    
+    const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.7, 0.4, 0.85);
+    composer.addPass(bloomPass);
 
     const effectColorify = new ShaderPass(ColorifyShader);
     effectColorify.uniforms['color'].value = new THREE.Color(0x00ffff);
@@ -141,25 +152,51 @@ function init(){
     scene.add(light);
     scene.add(light.target);
 
+    // 3D 모델 로딩용 GLTF Loader 객체 생성
     const gloader = new GLTFLoader();
-    gloader.load('Resouce/3D/sipe_arrow.glb', function(gltf){
-        gltf.scene.scale.set(.6, .5, .5);
-        gltf.scene.rotateZ(Math.PI / 2);
-        gltf.scene.rotateX(Math.PI / 2);
-        gltf.scene.position.set(4.5, 1.5, -5.5);
-    scene.add(gltf.scene);
+    gloader.load('/Resource/3D/sipe_arrow.glb', function(gltf){
+     arrow = gltf.scene;
+
+        arrow.scale.set(.6, .5, .5);
+        arrow.rotateZ(Math.PI / 2);
+        arrow.rotateX(Math.PI / 2);
+        arrow.rotateY(Math.PI);
+        arrow.position.set(6.4, 1.7, -5.5);
+        scene.add(gltf.scene);
+
+    if (mirror) {
+        // 복제 후 미러 처리
+        arrowMirror = arrow.clone();
+
+        // X축 반전 (스케일 음수)
+        arrowMirror.scale.x *= -1;
+
+        // 필요 시 위치도 조정
+        arrowMirror.position.set(
+            arrow.position.x,
+            arrow.position.y- 3.4,
+            arrow.position.z// textMesh2처럼 약간 z방향 이동
+        );
+
+        scene.add(arrowMirror);
+    }
+
     }, undefined, function(error){
         console.error(error);
     });
 
-    //Web Graphics Library 웹 상에서 2D 및 3D 그래픽 렌더링을 위한 로우레벨 javaScript API
-
     const controls = new OrbitControls( camera, renderer.domElement );
     controls.enableZoom = true;
 
+    //
+
     const gui = new GUI();
 
-    gui.add( params, 'enable' );
+    // GUI에 색상 선택기 추가
+    gui.addColor(ambientLightColor, 'color').onChange(function(value) {
+    ambientLight.color.set(value);
+    });
+
     gui.open();
 
 				//
@@ -172,6 +209,7 @@ function init(){
 }
 
 function onWindowResize() {
+
     camera.updateProjectionMatrix();
 
     renderer.setSize( window.innerWidth, window.innerHeight );
@@ -188,9 +226,12 @@ function onDocumentKeyDown( event ) {
 
         firstLetter = false;
         text = '';
+
     }
 
     const keyCode = event.keyCode;
+
+    // backspace
 
     if ( keyCode === 8 ) {
 
@@ -200,6 +241,7 @@ function onDocumentKeyDown( event ) {
         refreshText();
 
         return false;
+
     }
 
 }
@@ -217,19 +259,21 @@ function onDocumentKeyPress( event ) {
     } else {
 
         const ch = String.fromCharCode( keyCode );
+
         text += ch;
+        text = text.toUpperCase();
 
         refreshText();
+
     }
 
 }
 
 function createText() {
 
-           const material = new THREE.MeshPhongMaterial( { color: 0xffff00 } );
+    material = new THREE.MeshPhongMaterial( { color: 0xffff00 } );
 
-
-    textGeo = new TextGeometry( text, {
+    textGeom = new TextGeometry( text, {
 
         font: font,
 
@@ -243,12 +287,12 @@ function createText() {
 
     } );
 
-    textGeo.computeBoundingBox();
-    textGeo.computeVertexNormals();
+    textGeom.computeBoundingBox();
+    textGeom.computeVertexNormals();
 
-    const centerOffset = - 0.5 * ( textGeo.boundingBox.max.x - textGeo.boundingBox.min.x );
+    const centerOffset = - 0.5 * ( textGeom.boundingBox.max.x - textGeom.boundingBox.min.x );
 
-    textMesh1 = new THREE.Mesh( textGeo, material );
+    textMesh1 = new THREE.Mesh( textGeom, material );
 
     textMesh1.position.x = centerOffset;
     textMesh1.position.y = hover;
@@ -261,7 +305,7 @@ function createText() {
 
     if ( mirror ) {
 
-        textMesh2 = new THREE.Mesh( textGeo, material );
+        textMesh2 = new THREE.Mesh( textGeom, material );
 
         textMesh2.position.x = centerOffset;
         textMesh2.position.y = hover;
@@ -283,7 +327,29 @@ function refreshText() {
     if ( ! text ) return;
 
     createText();
+    updateArrowoPosition();
+}
 
+function updateArrowoPosition() {
+    if (!arrow) return; // 모델이 아직 로드 안 됐으면 패스
+
+    // 텍스트의 bounding box 가져오기
+    textGeom.computeBoundingBox();
+    const bbox = textGeom.boundingBox;
+
+    // 텍스트 오른쪽 끝 X 좌표
+    const textRightEdge = bbox.max.x - (bbox.max.x - bbox.min.x) / 2;
+
+    // 커서처럼 우측에 위치시키기 (0.5 간격 추가)
+    const gap = 3.0;
+    const arrowX = textRightEdge + gap;
+
+    // 텍스트 Y, Z에 맞춰 배치
+    arrow.position.set(arrowX, arrow.position.y, arrow.position.z);
+
+    if (arrowMirror) {
+        arrowMirror.position.set(arrowX, arrowMirror.position.y, arrow.position.z);
+    }
 }
 
 function onPointerDown( event ) {
@@ -318,21 +384,7 @@ function onPointerUp( event ) {
 }
 
 function animate() {
-
-    if ( params.enable === true ) {
+    
         composer.render();
-    } 
-    else {
-        renderer.render( scene, camera );
-    }
-}
-//renderer.outputColorSpace = THREE.SRGBColorSpace;
-//renderer.setSize(window.innerWidth, window.innerHeight);
-//document.body.appendChild(renderer.domElement);
 
-//function animate(){
-    //renderer.render(scene, camera);
-    //60frame per 1second
-    //requestAnimationFrame(animate);
-//}
-//renderer.setAnimationLoop(animate);
+}
