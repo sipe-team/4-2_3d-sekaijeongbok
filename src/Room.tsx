@@ -33,7 +33,7 @@ const artworks: Artwork[] = [
     id: "sun",
     title: "태양",
     description: "커스텀 셰이더로 만든 태양과 불 효과",
-    link: "/sun",
+    link: "https://euihyun-gallery.netlify.app/sun",
     position: [-artworkGap, 0, frontPlanePosition[2] + 0.1],
     color: "#ff6b35",
     previewImage: "/sun.png",
@@ -41,8 +41,8 @@ const artworks: Artwork[] = [
   {
     id: "monument",
     title: "모뉴먼트 밸리",
-    description: "3D 환경과 인터랙션",
-    link: "/monument",
+    description: "모뉴먼트밸리 맵을 그려보아요",
+    link: "https://euihyun-gallery.netlify.app/monument",
     position: [0, 0, frontPlanePosition[2] + 0.1],
     color: "#4ecdc4",
     previewImage: "/monument.png",
@@ -76,17 +76,18 @@ const artworks: Artwork[] = [
     color: "#ffffff",
     previewImage: "/atomic-slash.gif",
   },
-    {
+  {
     id: "3d audio visualizer",
     title: "3D Audio Viusalizer",
-    description: "소리바다 채널의 자칭 메인테이너로서 소임을 다하기 위한 3D 오디오 시각화",
+    description:
+      "소리바다 채널의 자칭 메인테이너로서 소임을 다하기 위한 3D 오디오 시각화",
     link: "https://3daudiovisualizer.vercel.app/",
     position: [rightPlanePosition[0] - 0.1, 0, 0],
     rotation: [0, -Math.PI / 2, 0],
     color: "#ffffff",
     previewImage: "/3d-audio-visualizer.png",
   },
-    {
+  {
     id: "type arrow",
     title: "동아리에 대한 애정과 멋진 시각효과",
     description: "E로 끝나는 영단어를 타이핑하고 캡쳐해보는 재미",
@@ -329,69 +330,101 @@ export function RoomWalls() {
     "/textures/stone/metallic.jpg",
   ]);
 
-  return <>
-  {/* Gallery floor - 매우 밝은 흰색 대리석 느낌 */}
-  <Plane
-          args={[20, 20]}
-          rotation={[-Math.PI / 2, 0, 0]}
-          position={[0, -3, 0]}
-        >
-          <meshStandardMaterial
-            color="#ffffff" 
-            roughnessMap={roughness}
-            normalMap={normal}
-            metalnessMap={metallic}
-            metalness={1}
-            roughness={0}
-          />
-        </Plane>
+  return (
+    <>
+      {/* Gallery floor - 매우 밝은 흰색 대리석 느낌 */}
+      <Plane
+        args={[20, 20]}
+        rotation={[-Math.PI / 2, 0, 0]}
+        position={[0, -3, 0]}
+      >
+        <meshStandardMaterial
+          color="#ffffff"
+          roughnessMap={roughness}
+          normalMap={normal}
+          metalnessMap={metallic}
+          metalness={1}
+          roughness={0}
+        />
+      </Plane>
 
-        <Plane
-          args={[20, 20]}
-          rotation={[Math.PI / 2, 0, 0]}
-          position={[0, 20, 0]}
-        >
-          <meshStandardMaterial
-            color="#ffffff" 
-            roughnessMap={roughness}
-            normalMap={normal}
-            metalnessMap={metallic}
-            metalness={1}
-            roughness={0}
-          />
-        </Plane>
-   {/* Gallery walls - 깔끔한 흰색 */}
-     <Plane args={[20, 50]} position={frontPlanePosition}>
-          <meshStandardMaterial color="#ffffff" roughnessMap={roughness} normalMap={normal} metalnessMap={metallic} metalness={1} roughness={0} />
-        </Plane>
+      <Plane
+        args={[20, 20]}
+        rotation={[Math.PI / 2, 0, 0]}
+        position={[0, 20, 0]}
+      >
+        <meshStandardMaterial
+          color="#ffffff"
+          roughnessMap={roughness}
+          normalMap={normal}
+          metalnessMap={metallic}
+          metalness={1}
+          roughness={0}
+        />
+      </Plane>
+      {/* Gallery walls - 깔끔한 흰색 */}
+      <Plane args={[20, 50]} position={frontPlanePosition}>
+        <meshStandardMaterial
+          color="#ffffff"
+          roughnessMap={roughness}
+          normalMap={normal}
+          metalnessMap={metallic}
+          metalness={1}
+          roughness={0}
+        />
+      </Plane>
 
-     <Plane args={[20, 50]} position={backPlanePosition} rotation={[0, Math.PI, 0]}>
-          <meshStandardMaterial color="#ffffff" roughnessMap={roughness} normalMap={normal} metalnessMap={metallic} metalness={1} roughness={0} />
-        </Plane>
+      <Plane
+        args={[20, 50]}
+        position={backPlanePosition}
+        rotation={[0, Math.PI, 0]}
+      >
+        <meshStandardMaterial
+          color="#ffffff"
+          roughnessMap={roughness}
+          normalMap={normal}
+          metalnessMap={metallic}
+          metalness={1}
+          roughness={0}
+        />
+      </Plane>
 
+      {/* 측면 벽 */}
+      <Plane
+        args={[20, 50]}
+        position={leftPlanePosition}
+        rotation={[0, Math.PI / 2, 0]}
+      >
+        <meshStandardMaterial
+          color="#ffffff"
+          roughnessMap={roughness}
+          normalMap={normal}
+          metalnessMap={metallic}
+          metalness={1}
+          roughness={0}
+        />
+      </Plane>
 
-        {/* 측면 벽 */}
-        <Plane
-          args={[20, 50]}
-          position={leftPlanePosition}
-          rotation={[0, Math.PI / 2, 0]}
-        >
-          <meshStandardMaterial color="#ffffff" roughnessMap={roughness} normalMap={normal} metalnessMap={metallic} metalness={1} roughness={0} />
-        </Plane>
-
-        <Plane
-          args={[20, 50]}
-          position={rightPlanePosition}
-          rotation={[0, -Math.PI / 2, 0]}
-        >
-          <meshStandardMaterial color="#ffffff" roughnessMap={roughness} normalMap={normal} metalnessMap={metallic} metalness={1} roughness={0} />
-        </Plane>
-  </>
+      <Plane
+        args={[20, 50]}
+        position={rightPlanePosition}
+        rotation={[0, -Math.PI / 2, 0]}
+      >
+        <meshStandardMaterial
+          color="#ffffff"
+          roughnessMap={roughness}
+          normalMap={normal}
+          metalnessMap={metallic}
+          metalness={1}
+          roughness={0}
+        />
+      </Plane>
+    </>
+  );
 }
 
 export function Room() {
   const [selectedArtwork, setSelectedArtwork] = useState<Artwork | null>(null);
- 
 
   return (
     <div className="w-full h-screen bg-white relative">
@@ -422,9 +455,7 @@ export function Room() {
         <pointLight position={[0, 19, 4]} intensity={0.8} color="#ffffff" />
         <pointLight position={[0, 19, -4]} intensity={0.8} color="#ffffff" />
 
-        
-
-       <RoomWalls />
+        <RoomWalls />
 
         {/* Artworks */}
         {artworks.map((artwork) => (
