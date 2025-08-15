@@ -6,7 +6,6 @@ import {
 } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import type { ReactNode } from "react";
-import { Header } from "../Header";
 import appCss from "../styles.css?url";
 
 export const Route = createRootRoute({
@@ -35,7 +34,6 @@ export const Route = createRootRoute({
   component() {
     return (
       <RootDocument>
-        <Header />
         <Outlet />
         <TanStackRouterDevtools />
       </RootDocument>
