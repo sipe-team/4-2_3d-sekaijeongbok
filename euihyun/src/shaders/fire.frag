@@ -14,8 +14,8 @@ void main() {
   float angle = atan(pos.y, pos.x);
   
   // Fire parameters - much smaller to match 3D sun core
-  float sunRadius = 0.07;
-  float maxFlameRadius = 0.2;
+  float sunRadius = 0.1;
+  float maxFlameRadius = 0.5;
   
   // Slow time
   float slowTime = time * 0.5;
