@@ -10,7 +10,8 @@
     "lint": "biome lint",
     "serve": "vite preview",
     "start": "node .output/server/index.mjs",
-    "test": "vitest"
+    "test": "vitest",
+    "typecheck": "tsc"
   },
   "dependencies": {
     "@react-three/drei": "^10.5.1",
@@ -31,6 +32,8 @@
     "@types/react": "^19.0.8",
     "@types/react-dom": "^19.0.3",
     "@types/three": "^0.178.1",
+    "@vitest/browser": "^3.2.4",
+    "playwright": "^1.54.1",
     "typescript": "^5.7.2",
     "vite-plugin-glsl": "^1.5.1",
     "vitest": "^3.0.5"
